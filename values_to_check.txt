@@ -1,0 +1,10 @@
+SELECT * FROM `users` WHERE email = 'mostfa@mail.com' and password = 'Mos&0167829';
+
+
+end user :
+email : mostfa@mail.com
+passsword : Mos&0167829
+
+admin user:
+email : admin@mail.com
+password : Admin&01678
