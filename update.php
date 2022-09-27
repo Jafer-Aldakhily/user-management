@@ -4,15 +4,15 @@ require_once './config.php';
 
 $id = $_GET['id'];
 
-$sql = "update users set email = :email, full_name = :full_name, mobile = :mobile, password = :password, date = :date";
+$sql = "update users set email = :email, full_name = :full_name, mobile = :mobile, date = :date where id = :id";
 
 $query = $conn->prepare($sql);
 
 $result = $query->execute([
+    ":id" => $id,
     ":email" => $_POST["email"],
     ":full_name" => $_POST["full_name"],
     ":mobile" => $_POST["mobile"],
-    ":password" => $_POST["password"],
     ":date" => $_POST["date"]
 ]);
 

@@ -11,7 +11,12 @@ let modal_body = document.querySelector(".modal-body")
 
 let updateBtn = document.querySelector("#updateBtn")
 
+let user_image = document.querySelector("#user_image")
+
 let usersArr = []
+
+let username = document.querySelector("#username");
+    
 
 
 const readAllUsers = () => {
@@ -22,12 +27,12 @@ const readAllUsers = () => {
         {
             table_body.innerHTML += `
             <tr>
-                <th scope="row">1</th>
-                <td>${data[i].id}</td>
+                <th scope="row">${data[i].id}</th>
                 <td>${data[i].full_name}</td>
                 <td>${data[i].email}</td>
-                <td>${data[i].mobile}</td>
                 <td>${data[i].password}</td>
+                <td>${data[i].mobile}</td>
+                <td>${data[i].date}</td>
                 <td>
                             <button
                 type="button"
@@ -48,6 +53,24 @@ const readAllUsers = () => {
         
     )
 }
+
+
+const readOne =  () => {
+let user_id = localStorage.getItem("user_id")
+fetch('http://localhost/php_js/readOne.php?id=' + user_id,{
+  method: 'GET'
+}).then((res) => res.json())
+.then(data => {
+  console.log(data);
+  username.innerHTML = " "  + data.full_name
+
+  user_image.src = data.image
+  console.log(user_image);
+
+})
+}
+
+readOne();
 
 
 window.onload = (() => {
@@ -85,7 +108,7 @@ const edit = (id) => {
         })
         .then(res => res.json()) // or res.json()
         .then(data => {
-            // console.log(data);
+            console.log(data.date);
             modal_body.innerHTML = `
             <div class="w-100">
             <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Edit User</p>
@@ -150,47 +173,18 @@ const edit = (id) => {
                     value="${data.date}"
                   />
                 </div>
-              </div>
-  
-              <div class="d-flex flex-row align-items-center mb-4">
-                <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                <div class="form-outline flex-fill mb-0">
-                  <label class="form-label" for="form3Example4c">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="form-control"
-                    required
-                    value="${data.password}"
-                  />
-                </div>
-              </div>
-  
-              <div class="d-flex flex-row align-items-center mb-4">
-                <i class="fas fa-key fa-lg me-3 fa-fw"></i>
-                <div class="form-outline flex-fill mb-0">
-                  <label class="form-label" for="form3Example4cd"
-                    >Repeat your password</label
-                  >
-                  <input
-                    type="password"
-                    id="confirm_password"
-                    class="form-control"
-                    required
-                  />
-                </div>
-              </div>
+              </div>            
   
               <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                 <button onclick="update(${data.id})" type="button" id="button" class="btn btn-primary btn-lg">
-                  Register
+                  Update
                 </button>
               </div>
             </form>
           </div>
             
             `
+
         })  
         
     }
@@ -201,7 +195,7 @@ const update = (id) => {
     email = email.value
     mobile = mobile.value
     date = date.value
-    password = password.value
+    // password = password.value
 
     const data = new URLSearchParams();
     for (const p of new FormData(form_update)) {
@@ -242,12 +236,15 @@ mobile = document.querySelector("#mobile").value
 date = document.querySelector("#date").value
 password = document.querySelector("#password").value
 confirm_password = document.querySelector("#confirm_password").value
+image = document.querySelector("#image")
+
 
 const data = new URLSearchParams();
 for (const p of new FormData(form_register)) {
-    data.append(p[0],p[1])
+  data.append(p[0],p[1])
 }
 
+data.append('image',image.files[0].name)
 
 if(validateEmail(email) == true)
 {   
@@ -277,26 +274,7 @@ if(validateEmail(email) == true)
 
 
 
-form_login.addEventListener("submit",(e) => {
-e.preventDefault()
-email = document.querySelector("#email").value
-password = document.querySelector("#password").value
 
-console.log(email);
-console.log(password);
-const data = new URLSearchParams();
-for (const p of new FormData(form_login)) {
-    data.append(p[0],p[1])
-}
-
-fetch("http://localhost/php_js/login.php",{
-    method : 'POST',
-    body : data
-}).then((res) => res.json())
-.then(data => console.log(data))
-
-
-})
 
 function login(){
     email = email.value
@@ -312,6 +290,8 @@ function login(){
         body:data
     }).then((res) => res.json())
     .then(data => {
+      localStorage.setItem("user_id",data.id)
+      localStorage.setItem("username",data.full_name)
       if(data.role == 1)
       {
         window.location = "./index.html"
@@ -322,11 +302,36 @@ function login(){
 
 }
 
+    function logout() {
+      let user_id = localStorage.getItem("user_id")
+
+      fetch('http://localhost/php_js/logout.php?id=' + user_id,{
+        method: 'GET'
+      }).then(res => res.json())
+      .then(data => console.log(data))
+      localStorage.removeItem("username");
+      localStorage.removeItem("user_id");
+      window.location = "./login.html";
+    }
 
 
 
 
 
+  // <div class="d-flex flex-row align-items-center mb-4">
+  //   <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+  //   <div class="form-outline flex-fill mb-0">
+  //     <label class="form-label" for="form3Example4c">Password</label>
+  //     <input
+  //       type="password"
+  //       id="password"
+  //       name="password"
+  //       class="form-control"
+  //       required
+  //       value="${data.password}"
+  //     />
+  //   </div>
+  // </div>
 
 
 
@@ -342,3 +347,18 @@ function login(){
 
 //     // return (false)
 //   }
+
+
+
+
+// CREATE TABLE users (
+//   userid INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+//   fullname VARCHAR(100),
+//   email VARCHAR(50),
+//   reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//   last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+//   status VARCHAR(10) DEFAULT "inactive",
+//   phone VARCHAR(14),
+//   user_pwd LONGTEXT,
+//   dob DATE,
+//   role VARCHAR(10) DEFAULT "user");
